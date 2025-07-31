@@ -234,7 +234,7 @@ class PlayerDetailScreen extends ConsumerWidget {
 
   String _formatMatchTitle(match, allPlayers, String currentPlayerId) {
     String getPlayerName(String id) {
-      final player = allPlayers.cast<dynamic?>().firstWhere(
+      final player = allPlayers.cast<dynamic>().firstWhere(
         (p) => p.id == id,
         orElse: () => null,
       );
