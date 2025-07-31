@@ -54,7 +54,7 @@ class GlickoService {
       }
 
       double dSquaredInverseSum = 0.0;
-      double sumG_s_E = 0.0;
+      double sumGsE = 0.0;
 
       for (var match in relevantMatches) {
         // For doubles, we need to consider the average rating of the opposing team
@@ -85,7 +85,7 @@ class GlickoService {
         final actualScore = match.didPlayerWin(player.id) ? 1.0 : 0.0; // Simplified for win/loss
 
         dSquaredInverseSum += pow(gRdOpponent, 2) * expectedScore * (1.0 - expectedScore);
-        sumG_s_E += gRdOpponent * (actualScore - expectedScore);
+        sumGsE += gRdOpponent * (actualScore - expectedScore);
       }
 
       if (dSquaredInverseSum == 0) {
@@ -96,7 +96,7 @@ class GlickoService {
       final dSquared = 1.0 / (pow(_q, 2) * dSquaredInverseSum);
 
       // Step 2: Determine new rating
-      final newRating = player.rating + (_q / (1.0 / pow(player.ratingDeviation, 2) + 1.0 / dSquared)) * sumG_s_E;
+      final newRating = player.rating + (_q / (1.0 / pow(player.ratingDeviation, 2) + 1.0 / dSquared)) * sumGsE;
 
       // Step 3: Determine new ratings deviation
       final newRatingDeviation = sqrt(1.0 / (1.0 / pow(player.ratingDeviation, 2) + 1.0 / dSquared));
