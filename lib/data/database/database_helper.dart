@@ -1,8 +1,11 @@
+import 'dart:io';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
+import 'package:path_provider/path_provider.dart';
+
 
 class DatabaseHelper {
-  static const String _databaseName = 'tennis_doubles_rating.db';
+  static const String _databaseName = 'padel_rating.db';
   static const int _databaseVersion = 1;
 
   // Table names
@@ -43,7 +46,9 @@ class DatabaseHelper {
 
   // Initialize database
   Future<Database> _initDatabase() async {
-    String path = join(await getDatabasesPath(), _databaseName);
+    Directory directory = await getApplicationDocumentsDirectory();
+		String path = '${directory.path}/$_databaseName';
+    await Directory(dirname(path)).create(recursive: true); // Ensure directory exists
     return await openDatabase(
       path,
       version: _databaseVersion,

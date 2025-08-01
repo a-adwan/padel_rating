@@ -232,7 +232,7 @@ class PlayerDetailScreen extends ConsumerWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  String _formatMatchTitle(match, allPlayers, String currentPlayerId) {
+  String _formatMatchTitle(dynamic match, allPlayers, String currentPlayerId) {
     String getPlayerName(String id) {
       final player = allPlayers.cast<dynamic>().firstWhere(
         (p) => p.id == id,
