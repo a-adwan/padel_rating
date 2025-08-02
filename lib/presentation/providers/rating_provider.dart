@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../domain/services/glicko_service.dart';
@@ -90,6 +92,42 @@ class BatchUpdateNotifier extends StateNotifier<BatchUpdateState> {
     }
   }
 
+  Future<void> resetAllMatchesAndPlayers() async {
+    state = state.copyWith(isLoading: true, errorMessage: null, result: null);
+    final result = await _batchUpdateUseCase.resetAllMatchesAndPlayers();
+    state = state.copyWith(
+      isLoading: false,
+      isCompleted: true,
+      result: result,
+      errorMessage: result.success ? null : result.message,
+    );
+    // Refresh data after successful reset
+    if (result.success) {
+      _ref.read(playersProvider.notifier).loadPlayers();
+      _ref.read(matchesProvider.notifier).loadMatches();
+    }
+  }
+
+  Future<File> exportPlayersToCsv() async {
+    return await _batchUpdateUseCase.exportPlayersToCsv();
+  }
+
+  Future<File> exportMatchesToCsv() async {
+    return await _batchUpdateUseCase.exportMatchesToCsv();
+  }
+
+  Future<void> importPlayersFromCsv(File file) async {
+    await _batchUpdateUseCase.importPlayersFromCsv(file);
+    // Optionally refresh data
+    _ref.read(playersProvider.notifier).loadPlayers();
+  }
+
+  Future<void> importMatchesFromCsv(File file) async {
+    await _batchUpdateUseCase.importMatchesFromCsv(file);
+    // Optionally refresh data
+    _ref.read(matchesProvider.notifier).loadMatches();
+  }
+
   void resetState() {
     state = BatchUpdateState.idle();
   }
@@ -109,6 +147,22 @@ class BatchUpdateState {
     this.errorMessage,
     this.result,
   });
+
+  BatchUpdateState copyWith({
+    bool? isLoading,
+    bool? isCompleted,
+    bool? hasError,
+    String? errorMessage,
+    BatchUpdateResult? result,
+  }) {
+    return BatchUpdateState._(
+      isLoading: isLoading ?? this.isLoading,
+      isCompleted: isCompleted ?? this.isCompleted,
+      hasError: hasError ?? this.hasError,
+      errorMessage: errorMessage,
+      result: result,
+    );
+  }
 
   factory BatchUpdateState.idle() {
     return BatchUpdateState._(

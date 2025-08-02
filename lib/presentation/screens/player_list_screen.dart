@@ -59,9 +59,11 @@ class PlayerListScreen extends ConsumerWidget {
                   subtitle: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      Text('Side: ${player.side}'),
                       Text('Rating: ${player.rating.toStringAsFixed(0)}'),
                       Text('RD: ${player.ratingDeviation.toStringAsFixed(1)}'),
                       Text('Last Active: ${_formatDate(player.lastActivityDate)}'),
+                      Text('Last Rating Change: ${player.ratingChange.toStringAsFixed(0)}'),
                     ],
                   ),
                   trailing: Row(

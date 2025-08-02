@@ -1,3 +1,7 @@
+import 'dart:io';
+import 'package:file_picker/file_picker.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -21,11 +25,12 @@ class SettingsScreen extends ConsumerWidget {
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // Statistics Card
-            Card(
+        child: SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Statistics Card
+              Card(
               child: Padding(
                 padding: const EdgeInsets.all(16.0),
                 child: Column(
@@ -116,6 +121,116 @@ class SettingsScreen extends ConsumerWidget {
                   label: const Text('Run Monthly Update'),
                 ),
               ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final file = await ref.read(batchUpdateStateProvider.notifier).exportPlayersToCsv();
+                    final bytes = await file.readAsBytes();
+                    final savedPath = await FileSaver.instance.saveFile(
+                      name: 'players',
+                      bytes: bytes,
+                      fileExtension: 'csv',
+                      mimeType: MimeType.csv,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Players exported to $savedPath')),
+                    );
+                    await Share.shareXFiles([XFile(file.path)], text: 'Players CSV Export');
+                  },
+                  
+                  icon: const Icon(Icons.download),
+                  label: const Text('Export Players as CSV'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    final file = await ref.read(batchUpdateStateProvider.notifier).exportMatchesToCsv();
+                    final bytes = await file.readAsBytes();
+                    final savedPath = await FileSaver.instance.saveFile(
+                      name: 'matches',
+                      bytes: bytes,
+                      fileExtension: 'csv',
+                      mimeType: MimeType.csv,
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(content: Text('Players exported to $savedPath')),
+                    );
+                    await Share.shareXFiles([XFile(file.path)], text: 'Matches CSV Export');
+                  },
+                  icon: const Icon(Icons.download),
+                  label: const Text('Export Matches as CSV'),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    FilePickerResult? result = await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['csv'],
+                    );
+                    if (result != null) {
+                      final file = File(result.files.single.path!);
+                      await ref.read(batchUpdateStateProvider.notifier).importPlayersFromCsv(file);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Players imported from CSV')),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.upload),
+                  label: const Text('Import Players from CSV'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    FilePickerResult? result = await FilePicker.platform.pickFiles(
+                      type: FileType.custom,
+                      allowedExtensions: ['csv'],
+                    );
+                    if (result != null) {
+                      final file = File(result.files.single.path!);
+                      await ref.read(batchUpdateStateProvider.notifier).importMatchesFromCsv(file);
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(content: Text('Matches imported from CSV')),
+                      );
+                    }
+                  },
+                  icon: const Icon(Icons.upload),
+                  label: const Text('Import Matches from CSV'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.blueGrey,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () async {
+                    await ref.read(batchUpdateStateProvider.notifier).resetAllMatchesAndPlayers();
+                  },
+                  icon: const Icon(Icons.restore),
+                  label: const Text('Reset All Ratings & Match States'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.red,
+                    foregroundColor: Colors.white,
+                  ),
+                ),
+              ),
             ],
 
             const SizedBox(height: 16),
@@ -196,7 +311,7 @@ class SettingsScreen extends ConsumerWidget {
                 ),
               ),
 
-            const Spacer(),
+            const SizedBox(height: 16),
 
             // About Section
             const Divider(),
@@ -212,6 +327,7 @@ class SettingsScreen extends ConsumerWidget {
               style: TextStyle(fontSize: 12, color: Colors.grey),
             ),
           ],
+        ),
         ),
       ),
     );

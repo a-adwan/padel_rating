@@ -59,6 +59,7 @@ class GlickoService {
 
       double dSquaredInverseSum = 0.0;
       double sumGsE = 0.0;
+      double ratingChange = 0.0;
 
       for (var match in relevantMatches) {
         // For doubles, we need to consider the average rating of the opposing team
@@ -101,6 +102,7 @@ class GlickoService {
 
       // Step 2: Determine new rating
       final newRating = player.rating + (_q / (1.0 / pow(player.ratingDeviation, 2) + 1.0 / dSquared)) * sumGsE;
+      ratingChange += (_q / (1.0 / pow(player.ratingDeviation, 2) + 1.0 / dSquared)) * sumGsE;
 
       // Step 3: Determine new ratings deviation
       final newRatingDeviation = sqrt(1.0 / (1.0 / pow(player.ratingDeviation, 2) + 1.0 / dSquared));
@@ -108,6 +110,7 @@ class GlickoService {
       tempPlayers[player.id] = player.copyWith(
         rating: newRating,
         ratingDeviation: newRatingDeviation,
+        ratingChange: ratingChange,
         lastActivityDate: DateTime.now(),
       );
     }

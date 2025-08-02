@@ -1,4 +1,8 @@
+import 'package:csv/csv.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 import '../../data/models/player.dart';
+import '../../data/models/match.dart';
 import '../../data/repositories/player_repository.dart';
 import '../../data/repositories/match_repository.dart';
 import 'rating_calculation_use_case.dart';
@@ -102,6 +106,121 @@ class BatchRatingUpdateUseCase {
         matchesProcessed: 0,
         playersUpdated: 0,
       );
+    }
+  }
+
+  Future<BatchUpdateResult> resetAllMatchesAndPlayers() async {
+    try {
+      final allMatches = await _matchRepository.getAllMatches();
+      for (final match in allMatches) {
+        await _matchRepository.updateMatch(match.copyWith(isRatingProcessed: false));
+      }
+      final allPlayers = await _playerRepository.getAllPlayers();
+      for (final player in allPlayers) {
+        await _playerRepository.updatePlayer(player.copyWith(
+          rating: 1500,
+          ratingDeviation: 350,
+          ratingChange: 0,
+          lastActivityDate: DateTime.now(),
+        ));
+      }
+      return BatchUpdateResult(
+        success: true,
+        message: 'Reset successful',
+        matchesProcessed: allMatches.length,
+        playersUpdated: allPlayers.length,
+      );
+    } catch (e) {
+      return BatchUpdateResult(
+        success: false,
+        message: 'Reset failed: $e',
+        matchesProcessed: 0,
+        playersUpdated: 0,
+      );
+    }
+  }
+
+  Future<File> exportPlayersToCsv() async {
+    final players = await _playerRepository.getAllPlayers();
+    List<List<dynamic>> rows = [
+      ['id', 'name', 'rating', 'ratingDeviation', 'side', 'lastActivityDate']
+    ];
+    for (final player in players) {
+      rows.add([
+        player.id,
+        player.name,
+        player.rating,
+        player.ratingDeviation,
+        player.side,
+        player.lastActivityDate.toIso8601String(),
+      ]);
+    }
+    String csv = const ListToCsvConverter().convert(rows);
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/players.csv');
+    return file.writeAsString(csv);
+  }
+
+  Future<File> exportMatchesToCsv() async {
+    final matches = await _matchRepository.getAllMatches();
+    List<List<dynamic>> rows = [
+      ['id', 'date', 'team1Player1Id', 'team1Player2Id', 'team2Player1Id', 'team2Player2Id', 'team1Score', 'team2Score', 'winnerTeam', 'isRatingProcessed']
+    ];
+    for (final match in matches) {
+      rows.add([
+        match.id,
+        match.date.toIso8601String(),
+        match.team1Player1Id,
+        match.team1Player2Id,
+        match.team2Player1Id,
+        match.team2Player2Id,
+        match.team1Score,
+        match.team2Score,
+        match.winnerTeam,
+        match.isRatingProcessed ? 1 : 0,
+      ]);
+    }
+    String csv = const ListToCsvConverter().convert(rows);
+    final dir = await getApplicationDocumentsDirectory();
+    final file = File('${dir.path}/matches.csv');
+    return file.writeAsString(csv);
+  }
+
+  Future<void> importPlayersFromCsv(File file) async {
+    final csvString = await file.readAsString();
+    final rows = const CsvToListConverter().convert(csvString, eol: '\n');
+    for (int i = 1; i < rows.length; i++) { // skip header
+      final row = rows[i];
+      final player = Player(
+        id: row[0],
+        name: row[1],
+        rating: row[2],
+        ratingDeviation: row[3],
+        side: row[4],
+        lastActivityDate: DateTime.parse(row[5]),
+      );
+      await _playerRepository.addPlayer(player);
+    }
+  }
+
+  Future<void> importMatchesFromCsv(File file) async {
+    final csvString = await file.readAsString();
+    final rows = const CsvToListConverter().convert(csvString, eol: '\n');
+    for (int i = 1; i < rows.length; i++) { // skip header
+      final row = rows[i];
+      final match = Match(
+        id: row[0],
+        date: DateTime.parse(row[1]),
+        team1Player1Id: row[2],
+        team1Player2Id: row[3],
+        team2Player1Id: row[4],
+        team2Player2Id: row[5],
+        team1Score: row[6],
+        team2Score: row[7],
+        winnerTeam: row[8],
+        isRatingProcessed: row[9] == 1,
+      );
+      await _matchRepository.addMatch(match);
     }
   }
 }
