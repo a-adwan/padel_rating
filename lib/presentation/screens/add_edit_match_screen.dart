@@ -320,13 +320,9 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
 
   String getWinnerText(Match match, List<Player> players) {
     if (match.team1Score > match.team2Score) {
-      final p1 = players.firstWhere((p) => p.id == match.team1Player1Id, orElse: () => Player(id: '', name: '??', lastActivityDate: DateTime.now()));
-      final p2 = players.firstWhere((p) => p.id == match.team1Player2Id, orElse: () => Player(id: '', name: '??', lastActivityDate: DateTime.now()));
-      return 'Winner: ${p1.name} & ${p2.name}';
+      return 'Winner: Team 1';
     } else if (match.team2Score > match.team1Score) {
-      final p1 = players.firstWhere((p) => p.id == match.team2Player1Id, orElse: () => Player(id: '', name: '??', lastActivityDate: DateTime.now()));
-      final p2 = players.firstWhere((p) => p.id == match.team2Player2Id, orElse: () => Player(id: '', name: '??', lastActivityDate: DateTime.now()));
-      return 'Winner: ${p1.name} & ${p2.name}';
+      return 'Winner: Team 2';
     } else {
       return 'Draw';
     }
