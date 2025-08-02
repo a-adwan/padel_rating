@@ -44,7 +44,7 @@ class PlayerDetailScreen extends ConsumerWidget {
           final validMatches = matches
               .where((match) => match != null && match.didPlayerWin != null && match.didPlayerWin(playerId) != null)
               .toList();
-          final wins = validMatches.where((match) => match.didPlayerWin(playerId) == true).length;
+          final wins = validMatches.where((match) => match.didPlayerWin(playerId) == 1).length;
           final losses = validMatches.length - wins;
           final winPercentage = validMatches.isEmpty ? 0.0 : (wins / validMatches.length) * 100;
 
@@ -204,11 +204,11 @@ class PlayerDetailScreen extends ConsumerWidget {
                                       trailing: Container(
                                         padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
                                         decoration: BoxDecoration(
-                                          color: isWin ? Colors.green : Colors.red,
+                                          color: isWin == 1 ? Colors.green : isWin == 0 ? Colors.red :Colors.grey,
                                           borderRadius: BorderRadius.circular(4),
                                         ),
                                         child: Text(
-                                          isWin ? 'WIN' : 'LOSS',
+                                          isWin == 1 ? 'WIN' : isWin == 0 ? 'LOSS' : 'DRAW',
                                           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                                         ),
                                       ),

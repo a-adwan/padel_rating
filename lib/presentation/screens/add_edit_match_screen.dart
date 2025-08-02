@@ -25,7 +25,7 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
   String? _team1Player2Id;
   String? _team2Player1Id;
   String? _team2Player2Id;
-  int _winnerTeam = 1;
+  int _winnerTeam = 0;
 
   bool get isEditing => widget.match != null;
 
@@ -180,40 +180,32 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
                     ),
                     const SizedBox(height: 16),
 
-                    // Winner Selection
-                    const Text(
-                      'Winner',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: RadioListTile<int>(
-                            title: const Text('Team 1'),
-                            value: 1,
-                            groupValue: _winnerTeam,
-                            onChanged: (value) {
-                              setState(() {
-                                _winnerTeam = value!;
-                              });
-                            },
+                    // Result
+                    Card(
+                      child: ListTile(
+                        title: Text('Result'),
+                        subtitle: Text(
+                          getWinnerText(
+                            isEditing
+                                ? widget.match!
+                                : Match(
+                                    id: '',
+                                    date: _selectedDate,
+                                    team1Player1Id: _team1Player1Id ?? '',
+                                    team1Player2Id: _team1Player2Id ?? '',
+                                    team2Player1Id: _team2Player1Id ?? '',
+                                    team2Player2Id: _team2Player2Id ?? '',
+                                    team1Score: int.tryParse(_team1ScoreController.text) ?? 0,
+                                    team2Score: int.tryParse(_team2ScoreController.text) ?? 0,
+                                    winnerTeam: _winnerTeam,
+                                    isRatingProcessed: false,
+                                  ),
+                            players,
                           ),
                         ),
-                        Expanded(
-                          child: RadioListTile<int>(
-                            title: const Text('Team 2'),
-                            value: 2,
-                            groupValue: _winnerTeam,
-                            onChanged: (value) {
-                              setState(() {
-                                _winnerTeam = value!;
-                              });
-                            },
-                          ),
-                        ),
-                      ],
+                      ),
                     ),
-                    const SizedBox(height: 32),
+                    const SizedBox(height: 16),
 
                     SizedBox(
                       width: double.infinity,
@@ -292,6 +284,15 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
       final team1Score = int.parse(_team1ScoreController.text);
       final team2Score = int.parse(_team2ScoreController.text);
 
+      int winnerTeam;
+      if (team1Score > team2Score) {
+        winnerTeam = 1;
+      } else if (team2Score > team1Score) {
+        winnerTeam = 2;
+      } else {
+        winnerTeam = 0; // Draw
+      }
+
       final match = Match(
         id: isEditing ? widget.match!.id : '',
         date: _selectedDate,
@@ -301,7 +302,7 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
         team2Player2Id: _team2Player2Id!,
         team1Score: team1Score,
         team2Score: team2Score,
-        winnerTeam: _winnerTeam,
+        winnerTeam: winnerTeam,
         isRatingProcessed: isEditing ? widget.match!.isRatingProcessed : false,
       );
 
@@ -314,6 +315,20 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
       if (mounted) {
         Navigator.of(context).pop();
       }
+    }
+  }
+
+  String getWinnerText(Match match, List<Player> players) {
+    if (match.team1Score > match.team2Score) {
+      final p1 = players.firstWhere((p) => p.id == match.team1Player1Id, orElse: () => Player(id: '', name: '??', lastActivityDate: DateTime.now()));
+      final p2 = players.firstWhere((p) => p.id == match.team1Player2Id, orElse: () => Player(id: '', name: '??', lastActivityDate: DateTime.now()));
+      return 'Winner: ${p1.name} & ${p2.name}';
+    } else if (match.team2Score > match.team1Score) {
+      final p1 = players.firstWhere((p) => p.id == match.team2Player1Id, orElse: () => Player(id: '', name: '??', lastActivityDate: DateTime.now()));
+      final p2 = players.firstWhere((p) => p.id == match.team2Player2Id, orElse: () => Player(id: '', name: '??', lastActivityDate: DateTime.now()));
+      return 'Winner: ${p1.name} & ${p2.name}';
+    } else {
+      return 'Draw';
     }
   }
 }

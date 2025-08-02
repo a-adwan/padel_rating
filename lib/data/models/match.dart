@@ -7,7 +7,7 @@ class Match {
   final String team2Player2Id;
   final int team1Score;
   final int team2Score;
-  final int winnerTeam; // 1 for Team 1, 2 for Team 2
+  final int winnerTeam; // 1 for Team 1, 2 for Team 2, 0 for draw
   final bool isRatingProcessed; // Track if this match has been processed for rating updates
 
   Match({
@@ -98,11 +98,13 @@ class Match {
   }
 
   // Helper method to determine if a player won this match
-  bool didPlayerWin(String playerId) {
+  double didPlayerWin(String playerId) {
     if (winnerTeam == 1) {
-      return getTeam1PlayerIds().contains(playerId);
+      return getTeam1PlayerIds().contains(playerId) ? 1 : 0;
+    } else if (winnerTeam == 2) {
+      return getTeam2PlayerIds().contains(playerId) ? 1 : 0;
     } else {
-      return getTeam2PlayerIds().contains(playerId);
+      return 0.5; // Match is not won by any team
     }
   }
 

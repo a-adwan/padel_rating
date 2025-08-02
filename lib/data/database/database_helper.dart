@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 
 class DatabaseHelper {
   static const String _databaseName = 'padel_rating.db';
-  static const int _databaseVersion = 1;
+  static const int _databaseVersion = 2;
 
   // Table names
   static const String playersTable = 'players';
@@ -15,9 +15,11 @@ class DatabaseHelper {
   // Player table columns
   static const String playerIdColumn = 'id';
   static const String playerNameColumn = 'name';
+  static const String playerSideColumn = 'side';
   static const String playerRatingColumn = 'rating';
   static const String playerRatingDeviationColumn = 'ratingDeviation';
   static const String playerLastActivityDateColumn = 'lastActivityDate';
+  static const String playerRatingChangeColumn = 'ratingChange';
 
   // Match table columns
   static const String matchIdColumn = 'id';
@@ -64,9 +66,11 @@ class DatabaseHelper {
       CREATE TABLE $playersTable (
         $playerIdColumn TEXT PRIMARY KEY,
         $playerNameColumn TEXT NOT NULL,
+        $playerSideColumn TEXT NOT NULL,
         $playerRatingColumn REAL NOT NULL DEFAULT 1500.0,
         $playerRatingDeviationColumn REAL NOT NULL DEFAULT 350.0,
-        $playerLastActivityDateColumn INTEGER NOT NULL
+        $playerLastActivityDateColumn INTEGER NOT NULL,
+        $playerRatingChangeColumn REAL NOT NULL DEFAULT 0.0
       )
     ''');
 

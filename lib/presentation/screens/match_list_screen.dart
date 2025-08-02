@@ -66,7 +66,7 @@ class MatchListScreen extends ConsumerWidget {
                       children: [
                         Text('Date: ${_formatDate(match.date)}'),
                         Text('Score: ${match.team1Score} - ${match.team2Score}'),
-                        Text('Winner: Team ${match.winnerTeam}'),
+                        Text('Winner: ${match.winnerTeam == 1 ? 'Team 1' : match.winnerTeam == 2 ? 'Team 2' : 'Draw'}'),
                         if (match.isRatingProcessed)
                           const Text(
                             'Rating Processed',

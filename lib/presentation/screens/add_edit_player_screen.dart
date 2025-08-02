@@ -18,6 +18,7 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
   final _nameController = TextEditingController();
   final _ratingController = TextEditingController();
   final _rdController = TextEditingController();
+  String _selectedSide = 'Left'; // Default value
 
   bool get isEditing => widget.player != null;
 
@@ -28,9 +29,11 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
       _nameController.text = widget.player!.name;
       _ratingController.text = widget.player!.rating.toString();
       _rdController.text = widget.player!.ratingDeviation.toString();
+      _selectedSide = widget.player!.side; // Assuming Player model has a 'side' field
     } else {
       _ratingController.text = '1500';
       _rdController.text = '350';
+      _selectedSide = 'Both';
     }
   }
 
@@ -108,6 +111,31 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
                   return null;
                 },
               ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: _selectedSide,
+                decoration: const InputDecoration(
+                  labelText: 'Preferred Side',
+                  border: OutlineInputBorder(),
+                ),
+                items: ['Both', 'Left', 'Right']
+                    .map((side) => DropdownMenuItem(
+                          value: side,
+                          child: Text(side),
+                        ))
+                    .toList(),
+                onChanged: (value) {
+                  setState(() {
+                    _selectedSide = value!;
+                  });
+                },
+                validator: (value) {
+                  if (value == null || value.isEmpty) {
+                    return 'Please select a preferred side';
+                  }
+                  return null;
+                },
+              ),
               const SizedBox(height: 32),
               SizedBox(
                 width: double.infinity,
@@ -134,6 +162,7 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
           name: name,
           rating: rating,
           ratingDeviation: rd,
+          side: _selectedSide, // Assuming Player model has a 'side' field
         );
         await ref.read(playersProvider.notifier).editPlayer(updatedPlayer);
       } else {
