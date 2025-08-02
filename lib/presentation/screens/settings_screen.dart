@@ -137,7 +137,12 @@ class SettingsScreen extends ConsumerWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Players exported to $savedPath')),
                     );
-                    await Share.shareXFiles([XFile(file.path)], text: 'Players CSV Export');
+                    final params = ShareParams(
+                      subject: 'Players CSV Export',
+                        files: [XFile(file.path)],
+                        text: 'Players CSV Export'
+                    );
+                    await SharePlus.instance.share(params);
                   },
                   
                   icon: const Icon(Icons.download),
@@ -160,7 +165,12 @@ class SettingsScreen extends ConsumerWidget {
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(content: Text('Players exported to $savedPath')),
                     );
-                    await Share.shareXFiles([XFile(file.path)], text: 'Matches CSV Export');
+                    final params = ShareParams(
+                        subject: 'Matches CSV Export',
+                        files: [XFile(file.path)],
+                        text: 'Matches CSV Export'
+                    );
+                    await SharePlus.instance.share(params);
                   },
                   icon: const Icon(Icons.download),
                   label: const Text('Export Matches as CSV'),
