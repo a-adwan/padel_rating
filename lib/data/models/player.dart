@@ -10,7 +10,7 @@ class Player {
   Player({
     required this.id,
     required this.name,
-    this.side = 'Both',
+    required this.side,
     this.rating = 1500.0,
     this.ratingDeviation = 350.0,
     DateTime? lastActivityDate, // Make nullable

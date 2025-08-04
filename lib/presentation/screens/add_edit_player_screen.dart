@@ -18,7 +18,7 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
   final _nameController = TextEditingController();
   final _ratingController = TextEditingController();
   final _rdController = TextEditingController();
-  String _selectedSide = 'Both'; // Default value
+  String? _sideController;
 
   bool get isEditing => widget.player != null;
 
@@ -29,11 +29,11 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
       _nameController.text = widget.player!.name;
       _ratingController.text = widget.player!.rating.toString();
       _rdController.text = widget.player!.ratingDeviation.toString();
-      _selectedSide = widget.player!.side; // Assuming Player model has a 'side' field
+      _sideController = widget.player!.side;
     } else {
       _ratingController.text = '1500';
       _rdController.text = '350';
-      _selectedSide = 'Both';
+      _sideController = 'Both';
     }
   }
 
@@ -113,7 +113,7 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
               ),
               const SizedBox(height: 16),
               DropdownButtonFormField<String>(
-                value: _selectedSide,
+                value: _sideController,
                 decoration: const InputDecoration(
                   labelText: 'Preferred Side',
                   border: OutlineInputBorder(),
@@ -126,7 +126,7 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
                     .toList(),
                 onChanged: (value) {
                   setState(() {
-                    _selectedSide = value!;
+                    _sideController = value!;
                   });
                 },
                 validator: (value) {
@@ -156,17 +156,18 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
       final name = _nameController.text.trim();
       final rating = double.parse(_ratingController.text);
       final rd = double.parse(_rdController.text);
+      final side = _sideController ?? 'Both';
 
       if (isEditing) {
         final updatedPlayer = widget.player!.copyWith(
           name: name,
           rating: rating,
           ratingDeviation: rd,
-          side: _selectedSide, // Assuming Player model has a 'side' field
+          side: side,
         );
         await ref.read(playersProvider.notifier).editPlayer(updatedPlayer);
       } else {
-        await ref.read(playersProvider.notifier).addPlayer(name);
+        await ref.read(playersProvider.notifier).addPlayer(name, side);
       }
 
       if (mounted) {

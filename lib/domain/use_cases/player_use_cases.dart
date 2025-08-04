@@ -9,11 +9,12 @@ class PlayerUseCases {
 
   PlayerUseCases(this._playerRepository);
 
-  Future<void> addPlayer(String name) async {
+  Future<void> addPlayer(String name, String side) async {
     final player = Player(
       id: _uuid.v4(),
       name: name,
       lastActivityDate: DateTime.fromMicrosecondsSinceEpoch(0),
+      side: side,
     );
     await _playerRepository.addPlayer(player);
   }
