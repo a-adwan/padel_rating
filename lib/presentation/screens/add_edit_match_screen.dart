@@ -21,10 +21,10 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
   final _team2ScoreController = TextEditingController();
 
   DateTime _selectedDate = DateTime.now();
-  String? _team1Player1Id;
-  String? _team1Player2Id;
-  String? _team2Player1Id;
-  String? _team2Player2Id;
+  String? _team1Player1Name;
+  String? _team1Player2Name;
+  String? _team2Player1Name;
+  String? _team2Player2Name;
   int _winnerTeam = 0;
 
   bool get isEditing => widget.match != null;
@@ -35,10 +35,10 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
     if (isEditing) {
       final match = widget.match!;
       _selectedDate = match.date;
-      _team1Player1Id = match.team1Player1Id;
-      _team1Player2Id = match.team1Player2Id;
-      _team2Player1Id = match.team2Player1Id;
-      _team2Player2Id = match.team2Player2Id;
+      _team1Player1Name = match.team1Player1Name;
+      _team1Player2Name = match.team1Player2Name;
+      _team2Player1Name = match.team2Player1Name;
+      _team2Player2Name = match.team2Player2Name;
       _team1ScoreController.text = match.team1Score.toString();
       _team2ScoreController.text = match.team2Score.toString();
       _winnerTeam = match.winnerTeam;
@@ -100,15 +100,15 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    _buildPlayerDropdown('Team 1 Player 1', _team1Player1Id, players, (value) {
+                    _buildPlayerDropdown('Team 1 Player 1', _team1Player1Name, players, (value) {
                       setState(() {
-                        _team1Player1Id = value;
+                        _team1Player1Name = value;
                       });
                     }),
                     const SizedBox(height: 8),
-                    _buildPlayerDropdown('Team 1 Player 2', _team1Player2Id, players, (value) {
+                    _buildPlayerDropdown('Team 1 Player 2', _team1Player2Name, players, (value) {
                       setState(() {
-                        _team1Player2Id = value;
+                        _team1Player2Name = value;
                       });
                     }),
                     const SizedBox(height: 16),
@@ -119,15 +119,15 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
                       style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
                     ),
                     const SizedBox(height: 8),
-                    _buildPlayerDropdown('Team 2 Player 1', _team2Player1Id, players, (value) {
+                    _buildPlayerDropdown('Team 2 Player 1', _team2Player1Name, players, (value) {
                       setState(() {
-                        _team2Player1Id = value;
+                        _team2Player1Name = value;
                       });
                     }),
                     const SizedBox(height: 8),
-                    _buildPlayerDropdown('Team 2 Player 2', _team2Player2Id, players, (value) {
+                    _buildPlayerDropdown('Team 2 Player 2', _team2Player2Name, players, (value) {
                       setState(() {
-                        _team2Player2Id = value;
+                        _team2Player2Name = value;
                       });
                     }),
                     const SizedBox(height: 16),
@@ -191,10 +191,10 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
                                 : Match(
                                     id: '',
                                     date: _selectedDate,
-                                    team1Player1Id: _team1Player1Id ?? '',
-                                    team1Player2Id: _team1Player2Id ?? '',
-                                    team2Player1Id: _team2Player1Id ?? '',
-                                    team2Player2Id: _team2Player2Id ?? '',
+                                    team1Player1Name: _team1Player1Name ?? '',
+                                    team1Player2Name: _team1Player2Name ?? '',
+                                    team2Player1Name: _team2Player1Name ?? '',
+                                    team2Player2Name: _team2Player2Name ?? '',
                                     team1Score: int.tryParse(_team1ScoreController.text) ?? 0,
                                     team2Score: int.tryParse(_team2ScoreController.text) ?? 0,
                                     winnerTeam: _winnerTeam,
@@ -226,7 +226,7 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
 
   Widget _buildPlayerDropdown(
     String label,
-    String? selectedPlayerId,
+    String? selectedPlayerName,
     List<Player> players,
     Function(String?) onChanged,
   ) {
@@ -235,10 +235,10 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
         labelText: label,
         border: const OutlineInputBorder(),
       ),
-      value: selectedPlayerId,
+      value: selectedPlayerName,
       items: players.map((player) {
         return DropdownMenuItem<String>(
-          value: player.id,
+          value: player.name,
           child: Text(player.name),
         );
       }).toList(),
@@ -273,8 +273,8 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
   void _saveMatch() async {
     if (_formKey.currentState!.validate()) {
       // Validate that all players are different
-      final playerIds = [_team1Player1Id, _team1Player2Id, _team2Player1Id, _team2Player2Id];
-      if (playerIds.toSet().length != 4) {
+      final playerNames = [_team1Player1Name, _team1Player2Name, _team2Player1Name, _team2Player2Name];
+      if (playerNames.toSet().length != 4) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('All players must be different')),
         );
@@ -296,10 +296,10 @@ class _AddEditMatchScreenState extends ConsumerState<AddEditMatchScreen> {
       final match = Match(
         id: isEditing ? widget.match!.id : '',
         date: _selectedDate,
-        team1Player1Id: _team1Player1Id!,
-        team1Player2Id: _team1Player2Id!,
-        team2Player1Id: _team2Player1Id!,
-        team2Player2Id: _team2Player2Id!,
+        team1Player1Name: _team1Player1Name!,
+        team1Player2Name: _team1Player2Name!,
+        team2Player1Name: _team2Player1Name!,
+        team2Player2Name: _team2Player2Name!,
         team1Score: team1Score,
         team2Score: team2Score,
         winnerTeam: winnerTeam,

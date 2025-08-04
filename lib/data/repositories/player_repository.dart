@@ -28,22 +28,22 @@ class PlayerRepository {
   }
 
   // Delete a player
-  Future<void> deletePlayer(String id) async {
+  Future<void> deletePlayer(String name) async {
     final db = await _databaseHelper.database;
     await db.delete(
       DatabaseHelper.playersTable,
-      where: '${DatabaseHelper.playerIdColumn} = ?',
-      whereArgs: [id],
+      where: '${DatabaseHelper.playerNameColumn} = ?',
+      whereArgs: [name],
     );
   }
 
-  // Get a player by ID
-  Future<Player?> getPlayer(String id) async {
+  // Get a player by Name
+  Future<Player?> getPlayer(String name) async {
     final db = await _databaseHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseHelper.playersTable,
-      where: '${DatabaseHelper.playerIdColumn} = ?',
-      whereArgs: [id],
+      where: '${DatabaseHelper.playerNameColumn} = ?',
+      whereArgs: [name],
     );
 
     if (maps.isNotEmpty) {
@@ -66,7 +66,7 @@ class PlayerRepository {
   }
 
   // Update player rating and rating deviation
-  Future<void> updatePlayerRating(String playerId, double newRating, double newRatingDeviation) async {
+  Future<void> updatePlayerRating(String playerName, double newRating, double newRatingDeviation) async {
     final db = await _databaseHelper.database;
     await db.update(
       DatabaseHelper.playersTable,
@@ -75,8 +75,8 @@ class PlayerRepository {
         DatabaseHelper.playerRatingDeviationColumn: newRatingDeviation,
         DatabaseHelper.playerLastActivityDateColumn: DateTime.now().millisecondsSinceEpoch,
       },
-      where: '${DatabaseHelper.playerIdColumn} = ?',
-      whereArgs: [playerId],
+      where: '${DatabaseHelper.playerNameColumn} = ?',
+      whereArgs: [playerName],
     );
   }
 
@@ -94,16 +94,16 @@ class PlayerRepository {
     });
   }
 
-  // Get players by IDs
-  Future<List<Player>> getPlayersByIds(List<String> playerIds) async {
-    if (playerIds.isEmpty) return [];
-    
+  // Get players by Names
+  Future<List<Player>> getPlayersByNames(List<String> playerNames) async {
+    if (playerNames.isEmpty) return [];
+
     final db = await _databaseHelper.database;
-    final placeholders = List.filled(playerIds.length, '?').join(',');
+    final placeholders = List.filled(playerNames.length, '?').join(',');
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseHelper.playersTable,
-      where: '${DatabaseHelper.playerIdColumn} IN ($placeholders)',
-      whereArgs: playerIds,
+      where: '${DatabaseHelper.playerNameColumn} IN ($placeholders)',
+      whereArgs: playerNames,
     );
 
     return List.generate(maps.length, (i) {
@@ -112,12 +112,12 @@ class PlayerRepository {
   }
 
   // Check if a player exists
-  Future<bool> playerExists(String id) async {
+  Future<bool> playerExists(String name) async {
     final db = await _databaseHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseHelper.playersTable,
-      where: '${DatabaseHelper.playerIdColumn} = ?',
-      whereArgs: [id],
+      where: '${DatabaseHelper.playerNameColumn} = ?',
+      whereArgs: [name],
       limit: 1,
     );
 

@@ -62,9 +62,9 @@ class PlayersNotifier extends StateNotifier<AsyncValue<List<Player>>> {
     }
   }
 
-  Future<Player?> getPlayer(String id) async {
+  Future<Player?> getPlayer(String name) async {
     try {
-      return await _playerUseCases.getPlayer(id);
+      return await _playerUseCases.getPlayer(name);
     } catch (error) {
       return null;
     }

@@ -38,16 +38,16 @@ class PlayerUseCases {
     return await _playerRepository.getPlayersWithInactivity(cutoffDate);
   }
 
-  Future<void> updatePlayerRating(String playerId, double newRating, double newRatingDeviation) async {
-    await _playerRepository.updatePlayerRating(playerId, newRating, newRatingDeviation);
+  Future<void> updatePlayerRating(String playerName, double newRating, double newRatingDeviation) async {
+    await _playerRepository.updatePlayerRating(playerName, newRating, newRatingDeviation);
   }
 
-  Future<List<Player>> getPlayersByIds(List<String> playerIds) async {
-    return await _playerRepository.getPlayersByIds(playerIds);
+  Future<List<Player>> getPlayersByNames(List<String> playerNames) async {
+    return await _playerRepository.getPlayersByNames(playerNames);
   }
 
-  Future<bool> playerExists(String id) async {
-    return await _playerRepository.playerExists(id);
+  Future<bool> playerExists(String name) async {
+    return await _playerRepository.playerExists(name);
   }
 
   Future<int> getPlayerCount() async {

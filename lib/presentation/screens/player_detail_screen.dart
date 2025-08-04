@@ -5,9 +5,9 @@ import '../providers/player_provider.dart';
 import '../providers/match_provider.dart';
 
 class PlayerDetailScreen extends ConsumerWidget {
-  final String playerId;
+  final String playerName;
 
-  const PlayerDetailScreen({super.key, required this.playerId});
+  const PlayerDetailScreen({super.key, required this.playerName});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -18,8 +18,8 @@ class PlayerDetailScreen extends ConsumerWidget {
       ),
       body: FutureBuilder(
         future: Future.wait([
-          ref.read(playersProvider.notifier).getPlayer(playerId),
-          ref.read(matchesProvider.notifier).getMatchesForPlayer(playerId),
+          ref.read(playersProvider.notifier).getPlayer(playerName),
+          ref.read(matchesProvider.notifier).getMatchesForPlayer(playerName),
         ]),
         builder: (context, AsyncSnapshot<List<dynamic>> snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -42,9 +42,9 @@ class PlayerDetailScreen extends ConsumerWidget {
           }
 
           final validMatches = matches
-              .where((match) => match != null && match.didPlayerWin != null && match.didPlayerWin(playerId) != null)
+              .where((match) => match != null && match.didPlayerWin != null && match.didPlayerWin(playerName) != null)
               .toList();
-          final wins = validMatches.where((match) => match.didPlayerWin(playerId) == 1).length;
+          final wins = validMatches.where((match) => match.didPlayerWin(playerName) == 1).length;
           final losses = validMatches.length - wins;
           final winPercentage = validMatches.isEmpty ? 0.0 : (wins / validMatches.length) * 100;
 
@@ -189,11 +189,11 @@ class PlayerDetailScreen extends ConsumerWidget {
                                 itemCount: matches.length,
                                 itemBuilder: (context, index) {
                                   final match = matches[index];
-                                  final isWin = match.didPlayerWin(playerId);
+                                  final isWin = match.didPlayerWin(playerName);
                                   
                                   return Card(
                                     child: ListTile(
-                                      title: Text(_formatMatchTitle(match, allPlayers, playerId)),
+                                      title: Text(_formatMatchTitle(match, allPlayers, playerName)),
                                       subtitle: Column(
                                         crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
@@ -232,28 +232,28 @@ class PlayerDetailScreen extends ConsumerWidget {
     return '${date.day}/${date.month}/${date.year}';
   }
 
-  String _formatMatchTitle(dynamic match, allPlayers, String currentPlayerId) {
-    String getPlayerName(String id) {
+  String _formatMatchTitle(dynamic match, allPlayers, String currentPlayerName) {
+    String getPlayerName(String name) {
       final player = allPlayers.cast<dynamic>().firstWhere(
-        (p) => p.id == id,
+        (p) => p.name == name,
         orElse: () => null,
       );
       if (player == null) return 'Unknown';
       return player.name;
     }
 
-    final team1Player1 = getPlayerName(match.team1Player1Id);
-    final team1Player2 = getPlayerName(match.team1Player2Id);
-    final team2Player1 = getPlayerName(match.team2Player1Id);
-    final team2Player2 = getPlayerName(match.team2Player2Id);
+    final team1Player1 = getPlayerName(match.team1Player1Name);
+    final team1Player2 = getPlayerName(match.team1Player2Name);
+    final team2Player1 = getPlayerName(match.team2Player1Name);
+    final team2Player2 = getPlayerName(match.team2Player2Name);
 
-    final isOnTeam1 = match.getTeam1PlayerIds().contains(currentPlayerId);
+    final isOnTeam1 = match.getTeam1PlayerNames().contains(currentPlayerName);
 
     if (isOnTeam1) {
-      final partner = match.team1Player1Id == currentPlayerId ? team1Player2 : team1Player1;
+      final partner = match.team1Player1Name == currentPlayerName ? team1Player2 : team1Player1;
       return 'With $partner vs $team2Player1 & $team2Player2';
     } else {
-      final partner = match.team2Player1Id == currentPlayerId ? team2Player2 : team2Player1;
+      final partner = match.team2Player1Name == currentPlayerName ? team2Player2 : team2Player1;
       return 'With $partner vs $team1Player1 & $team1Player2';
     }
   }

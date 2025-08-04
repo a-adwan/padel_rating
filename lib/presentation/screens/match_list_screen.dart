@@ -115,18 +115,18 @@ class MatchListScreen extends ConsumerWidget {
   }
 
   static String _formatMatchTitle(dynamic match, List<dynamic> players) {
-    String getPlayerName(String id) {
+    String getPlayerName(String name) {
       final player = players.cast<dynamic>().firstWhere(
-        (p) => p.id == id,
+        (p) => p.name == name,
         orElse: () => null,
       );
       return player?.name ?? 'Unknown';
     }
 
-    final team1Player1 = getPlayerName(match.team1Player1Id);
-    final team1Player2 = getPlayerName(match.team1Player2Id);
-    final team2Player1 = getPlayerName(match.team2Player1Id);
-    final team2Player2 = getPlayerName(match.team2Player2Id);
+    final team1Player1 = getPlayerName(match.team1Player1Name);
+    final team1Player2 = getPlayerName(match.team1Player2Name);
+    final team2Player1 = getPlayerName(match.team2Player1Name);
+    final team2Player2 = getPlayerName(match.team2Player2Name);
 
     return '$team1Player1 & $team1Player2 vs $team2Player1 & $team2Player2';
   }

@@ -38,12 +38,12 @@ class RatingCalculationUseCase {
     }
 
     // Get all players involved in unprocessed matches
-    final Set<String> playerIds = {};
+    final Set<String> playerNames = {};
     for (final match in unprocessedMatches) {
-      playerIds.addAll(match.getAllPlayerIds());
+      playerNames.addAll(match.getAllPlayerNames());
     }
 
-    final List<Player> playersToUpdate = await _playerRepository.getPlayersByIds(playerIds.toList());
+    final List<Player> playersToUpdate = await _playerRepository.getPlayersByNames(playerNames.toList());
 
     await calculateNewRatings(playersToUpdate, unprocessedMatches);
   }
@@ -54,7 +54,7 @@ class RatingCalculationUseCase {
     for (final player in inactivePlayers) {
       // Apply RD increase due to inactivity using Glicko service
       final updatedPlayers = _glickoService.calculateNewRatings([player], []);
-      final updatedPlayer = updatedPlayers[player.id];
+      final updatedPlayer = updatedPlayers[player.name];
       
       if (updatedPlayer != null) {
         await _playerRepository.updatePlayer(updatedPlayer);

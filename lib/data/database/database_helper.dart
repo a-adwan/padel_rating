@@ -24,10 +24,10 @@ class DatabaseHelper {
   // Match table columns
   static const String matchIdColumn = 'id';
   static const String matchDateColumn = 'date';
-  static const String matchTeam1Player1IdColumn = 'team1Player1Id';
-  static const String matchTeam1Player2IdColumn = 'team1Player2Id';
-  static const String matchTeam2Player1IdColumn = 'team2Player1Id';
-  static const String matchTeam2Player2IdColumn = 'team2Player2Id';
+  static const String matchTeam1Player1NameColumn = 'team1Player1Name';
+  static const String matchTeam1Player2NameColumn = 'team1Player2Name';
+  static const String matchTeam2Player1NameColumn = 'team2Player1Name';
+  static const String matchTeam2Player2NameColumn = 'team2Player2Name';
   static const String matchTeam1ScoreColumn = 'team1Score';
   static const String matchTeam2ScoreColumn = 'team2Score';
   static const String matchWinnerTeamColumn = 'winnerTeam';
@@ -65,7 +65,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $playersTable (
         $playerIdColumn TEXT PRIMARY KEY,
-        $playerNameColumn TEXT NOT NULL,
+        $playerNameColumn TEXT NOT NULL UNIQUE,
         $playerSideColumn TEXT NOT NULL,
         $playerRatingColumn REAL NOT NULL DEFAULT 1500.0,
         $playerRatingDeviationColumn REAL NOT NULL DEFAULT 350.0,
@@ -79,18 +79,18 @@ class DatabaseHelper {
       CREATE TABLE $matchesTable (
         $matchIdColumn TEXT PRIMARY KEY,
         $matchDateColumn INTEGER NOT NULL,
-        $matchTeam1Player1IdColumn TEXT NOT NULL,
-        $matchTeam1Player2IdColumn TEXT NOT NULL,
-        $matchTeam2Player1IdColumn TEXT NOT NULL,
-        $matchTeam2Player2IdColumn TEXT NOT NULL,
+        $matchTeam1Player1NameColumn TEXT NOT NULL,
+        $matchTeam1Player2NameColumn TEXT NOT NULL,
+        $matchTeam2Player1NameColumn TEXT NOT NULL,
+        $matchTeam2Player2NameColumn TEXT NOT NULL,
         $matchTeam1ScoreColumn INTEGER NOT NULL,
         $matchTeam2ScoreColumn INTEGER NOT NULL,
         $matchWinnerTeamColumn INTEGER NOT NULL,
         $matchIsRatingProcessedColumn INTEGER NOT NULL DEFAULT 0,
-        FOREIGN KEY ($matchTeam1Player1IdColumn) REFERENCES $playersTable ($playerIdColumn),
-        FOREIGN KEY ($matchTeam1Player2IdColumn) REFERENCES $playersTable ($playerIdColumn),
-        FOREIGN KEY ($matchTeam2Player1IdColumn) REFERENCES $playersTable ($playerIdColumn),
-        FOREIGN KEY ($matchTeam2Player2IdColumn) REFERENCES $playersTable ($playerIdColumn)
+        FOREIGN KEY ($matchTeam1Player1NameColumn) REFERENCES $playersTable ($playerNameColumn),
+        FOREIGN KEY ($matchTeam1Player2NameColumn) REFERENCES $playersTable ($playerNameColumn),
+        FOREIGN KEY ($matchTeam2Player1NameColumn) REFERENCES $playersTable ($playerNameColumn),
+        FOREIGN KEY ($matchTeam2Player2NameColumn) REFERENCES $playersTable ($playerNameColumn)
       )
     ''');
 

@@ -5,7 +5,7 @@ import '../../data/models/match.dart';
 
 class GlickoService {
   static const double _q = 0.006666666666666667; // ln(10) / 400
-  static const double _c = 34.6; // Calculated from 350 = sqrt(50^2 + 100c^2)
+  static const double _c = 67.9366220487; // Calculated from 350 = sqrt(50^2 + 26c^2)
   static const double _unratedRD = 350.0;
 
   // Step 1: Determine ratings deviation (RD) for inactivity
@@ -33,21 +33,21 @@ class GlickoService {
     final Map<String, Player> updatedPlayers = {};
     final Map<String, Player> tempPlayers = {};
 
-    // Build a map of playerId -> last match date
+    // Build a map of playerName -> last match date
     final Map<String, DateTime> lastMatchDateMap = {};
     for (var match in matches) {
-      for (var playerId in match.getAllPlayerIds()) {
-        final currentDate = lastMatchDateMap[playerId];
+      for (var playerName in match.getAllPlayerNames()) {
+        final currentDate = lastMatchDateMap[playerName];
         if (currentDate == null || match.date.isAfter(currentDate)) {
-          lastMatchDateMap[playerId] = match.date;
+          lastMatchDateMap[playerName] = match.date;
         }
       }
     }
 
     // Step 1: Apply inactivity RD using last match date
     for (var player in players) {
-      final lastMatchDate = lastMatchDateMap[player.id] ?? player.lastActivityDate;
-      updatedPlayers[player.id] = player.copyWith(
+      final lastMatchDate = lastMatchDateMap[player.name] ?? player.lastActivityDate;
+      updatedPlayers[player.name] = player.copyWith(
         ratingDeviation: _calculateRdForInactivity(player.ratingDeviation, lastMatchDate),
       );
     }
@@ -55,17 +55,17 @@ class GlickoService {
     // Group matches by player for easier processing
     final Map<String, List<Match>> playerMatches = {};
     for (var match in matches) {
-      for (var playerId in match.getAllPlayerIds()) {
-        playerMatches.putIfAbsent(playerId, () => []).add(match);
+      for (var playerName in match.getAllPlayerNames()) {
+        playerMatches.putIfAbsent(playerName, () => []).add(match);
       }
     }
 
     // Step 2: Calculate new ratings/deviations, but don't update yet
     for (var player in players) {
-      final List<Match> relevantMatches = playerMatches[player.id] ?? [];
+      final List<Match> relevantMatches = playerMatches[player.name] ?? [];
 
       if (relevantMatches.isEmpty) {
-        tempPlayers[player.id] = updatedPlayers[player.id]!;
+        tempPlayers[player.name] = updatedPlayers[player.name]!;
         continue;
       }
 
@@ -77,8 +77,8 @@ class GlickoService {
         // For doubles, we need to consider the average rating of the opposing team
         // and the outcome for the individual player.
 
-        List<String> opponentIds = match.getOpponentIds(player.id);
-        if (opponentIds.length != 2) {
+        List<String> opponentNames = match.getOpponentNames(player.name);
+        if (opponentNames.length != 2) {
           // This should not happen in doubles, but as a safeguard
           continue;
         }
@@ -86,8 +86,8 @@ class GlickoService {
         // Calculate average rating and RD of the opposing team
         double opponentTeamRating = 0.0;
         double opponentTeamRd = 0.0;
-        for (var oppId in opponentIds) {
-          final oppPlayer = updatedPlayers[oppId];
+        for (var oppName in opponentNames) {
+          final oppPlayer = updatedPlayers[oppName];
           if (oppPlayer != null) {
             opponentTeamRating += oppPlayer.rating;
             opponentTeamRd += pow(oppPlayer.ratingDeviation, 2);
@@ -99,14 +99,14 @@ class GlickoService {
         final gRdOpponent = _g(opponentTeamRd);
         final expectedScore = _e(player.rating, opponentTeamRating, gRdOpponent);
 
-        final actualScore = match.didPlayerWin(player.id);  // Simplified for win/loss
+        final actualScore = match.didPlayerWin(player.name);  // Simplified for win/loss
 
         dSquaredInverseSum += pow(gRdOpponent, 2) * expectedScore * (1.0 - expectedScore);
         sumGsE += gRdOpponent * (actualScore - expectedScore);
       }
 
       if (dSquaredInverseSum == 0) {
-        tempPlayers[player.id] = updatedPlayers[player.id]!;
+        tempPlayers[player.name] = updatedPlayers[player.name]!;
         continue;
       }
 
@@ -119,11 +119,11 @@ class GlickoService {
       // Step 3: Determine new ratings deviation
       final newRatingDeviation = sqrt(1.0 / (1.0 / pow(player.ratingDeviation, 2) + 1.0 / dSquared));
 
-      tempPlayers[player.id] = player.copyWith(
+      tempPlayers[player.name] = player.copyWith(
         rating: newRating,
         ratingDeviation: newRatingDeviation,
         ratingChange: ratingChange,
-        lastActivityDate: lastMatchDateMap[player.id],
+        lastActivityDate: lastMatchDateMap[player.name],
       );
     }
 

@@ -36,8 +36,8 @@ class MatchUseCases {
     await _matchRepository.deleteMatch(id);
   }
 
-  Future<List<Match>> getMatchesForPlayer(String playerId) async {
-    return await _matchRepository.getMatchesForPlayer(playerId);
+  Future<List<Match>> getMatchesForPlayer(String playerName) async {
+    return await _matchRepository.getMatchesForPlayer(playerName);
   }
 
   Future<List<Match>> getUnprocessedMatches() async {
@@ -48,8 +48,8 @@ class MatchUseCases {
     await _matchRepository.markMatchAsProcessed(matchId);
   }
 
-  Future<List<Match>> getMatchesByPlayer(String playerId, {DateTime? startDate, DateTime? endDate}) async {
-    return await _matchRepository.getMatchesByPlayer(playerId, startDate, endDate);
+  Future<List<Match>> getMatchesByPlayer(String playerName, {DateTime? startDate, DateTime? endDate}) async {
+    return await _matchRepository.getMatchesByPlayer(playerName, startDate, endDate);
   }
 
   Future<int> getMatchCount() async {
@@ -60,8 +60,8 @@ class MatchUseCases {
     return await _matchRepository.getUnprocessedMatchCount();
   }
 
-  Future<List<Match>> getMatchesInvolvingPlayers(List<String> playerIds) async {
-    return await _matchRepository.getMatchesInvolvingPlayers(playerIds);
+  Future<List<Match>> getMatchesInvolvingPlayers(List<String> playerNames) async {
+    return await _matchRepository.getMatchesInvolvingPlayers(playerNames);
   }
 }
 

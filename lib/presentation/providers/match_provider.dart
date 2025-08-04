@@ -70,9 +70,9 @@ class MatchesNotifier extends StateNotifier<AsyncValue<List<Match>>> {
     }
   }
 
-  Future<List<Match>> getMatchesForPlayer(String playerId) async {
+  Future<List<Match>> getMatchesForPlayer(String playerName) async {
     try {
-      return await _matchUseCases.getMatchesForPlayer(playerId);
+      return await _matchUseCases.getMatchesForPlayer(playerName);
     } catch (error) {
       return [];
     }

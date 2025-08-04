@@ -46,12 +46,12 @@ class BatchRatingUpdateUseCase {
     }
 
     // Get all players involved in these matches
-    final Set<String> playerIds = {};
+    final Set<String> playerNames = {};
     for (final match in unprocessedMatches) {
-      playerIds.addAll(match.getAllPlayerIds());
+      playerNames.addAll(match.getAllPlayerNames());
     }
 
-    final List<Player> playersToUpdate = await _playerRepository.getPlayersByIds(playerIds.toList());
+    final List<Player> playersToUpdate = await _playerRepository.getPlayersByNames(playerNames.toList());
 
     try {
       // Calculate new ratings for all affected players
@@ -141,7 +141,7 @@ class BatchRatingUpdateUseCase {
           rating: 1500,
           ratingDeviation: 350,
           ratingChange: 0,
-          lastActivityDate: DateTime.now(),
+          lastActivityDate: DateTime.fromMicrosecondsSinceEpoch(0),
         ));
       }
       return BatchUpdateResult(
@@ -184,16 +184,16 @@ class BatchRatingUpdateUseCase {
   Future<File> exportMatchesToCsv() async {
     final matches = await _matchRepository.getAllMatches();
     List<List<dynamic>> rows = [
-      ['id', 'date', 'team1Player1Id', 'team1Player2Id', 'team2Player1Id', 'team2Player2Id', 'team1Score', 'team2Score', 'winnerTeam', 'isRatingProcessed']
+      ['id', 'date', 'team1Player1Name', 'team1Player2Name', 'team2Player1Name', 'team2Player2Name', 'team1Score', 'team2Score', 'winnerTeam', 'isRatingProcessed']
     ];
     for (final match in matches) {
       rows.add([
         match.id,
         match.date.toIso8601String(),
-        match.team1Player1Id,
-        match.team1Player2Id,
-        match.team2Player1Id,
-        match.team2Player2Id,
+        match.team1Player1Name,
+        match.team1Player2Name,
+        match.team2Player1Name,
+        match.team2Player2Name,
         match.team1Score,
         match.team2Score,
         match.winnerTeam,
@@ -231,10 +231,10 @@ class BatchRatingUpdateUseCase {
       final match = Match(
         id: row[0],
         date: DateTime.parse(row[1]),
-        team1Player1Id: row[2],
-        team1Player2Id: row[3],
-        team2Player1Id: row[4],
-        team2Player2Id: row[5],
+        team1Player1Name: row[2],
+        team1Player2Name: row[3],
+        team2Player1Name: row[4],
+        team2Player2Name: row[5],
         team1Score: row[6],
         team2Score: row[7],
         winnerTeam: row[8],

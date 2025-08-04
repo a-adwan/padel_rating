@@ -18,7 +18,7 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
   final _nameController = TextEditingController();
   final _ratingController = TextEditingController();
   final _rdController = TextEditingController();
-  String _selectedSide = 'Left'; // Default value
+  String _selectedSide = 'Both'; // Default value
 
   bool get isEditing => widget.player != null;
 

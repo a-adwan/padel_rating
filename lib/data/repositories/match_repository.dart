@@ -81,17 +81,17 @@ class MatchRepository {
   }
 
   // Get matches for a specific player
-  Future<List<Match>> getMatchesForPlayer(String playerId) async {
+  Future<List<Match>> getMatchesForPlayer(String playerName) async {
     final db = await _databaseHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseHelper.matchesTable,
       where: '''
-        ${DatabaseHelper.matchTeam1Player1IdColumn} = ? OR 
-        ${DatabaseHelper.matchTeam1Player2IdColumn} = ? OR 
-        ${DatabaseHelper.matchTeam2Player1IdColumn} = ? OR 
-        ${DatabaseHelper.matchTeam2Player2IdColumn} = ?
+        ${DatabaseHelper.matchTeam1Player1NameColumn} = ? OR 
+        ${DatabaseHelper.matchTeam1Player2NameColumn} = ? OR 
+        ${DatabaseHelper.matchTeam2Player1NameColumn} = ? OR 
+        ${DatabaseHelper.matchTeam2Player2NameColumn} = ?
       ''',
-      whereArgs: [playerId, playerId, playerId, playerId],
+      whereArgs: [playerName, playerName, playerName, playerName],
       orderBy: '${DatabaseHelper.matchDateColumn} DESC',
     );
 
@@ -127,17 +127,17 @@ class MatchRepository {
   }
 
   // Get matches by player with optional date range
-  Future<List<Match>> getMatchesByPlayer(String playerId, DateTime? startDate, DateTime? endDate) async {
+  Future<List<Match>> getMatchesByPlayer(String playerName, DateTime? startDate, DateTime? endDate) async {
     final db = await _databaseHelper.database;
     
     String whereClause = '''
-      ${DatabaseHelper.matchTeam1Player1IdColumn} = ? OR 
-      ${DatabaseHelper.matchTeam1Player2IdColumn} = ? OR 
-      ${DatabaseHelper.matchTeam2Player1IdColumn} = ? OR 
-      ${DatabaseHelper.matchTeam2Player2IdColumn} = ?
+      ${DatabaseHelper.matchTeam1Player1NameColumn} = ? OR 
+      ${DatabaseHelper.matchTeam1Player2NameColumn} = ? OR 
+      ${DatabaseHelper.matchTeam2Player1NameColumn} = ? OR 
+      ${DatabaseHelper.matchTeam2Player2NameColumn} = ?
     ''';
-    
-    List<dynamic> whereArgs = [playerId, playerId, playerId, playerId];
+
+    List<dynamic> whereArgs = [playerName, playerName, playerName, playerName];
     
     if (startDate != null) {
       whereClause += ' AND ${DatabaseHelper.matchDateColumn} >= ?';
@@ -178,25 +178,25 @@ class MatchRepository {
   }
 
   // Get matches involving specific players
-  Future<List<Match>> getMatchesInvolvingPlayers(List<String> playerIds) async {
-    if (playerIds.isEmpty) return [];
-    
+  Future<List<Match>> getMatchesInvolvingPlayers(List<String> playerNames) async {
+    if (playerNames.isEmpty) return [];
+
     final db = await _databaseHelper.database;
-    //final placeholders = List.filled(playerIds.length * 4, '?').join(',');
+    //final placeholders = List.filled(playerNames.length * 4, '?').join(',');
     final List<dynamic> whereArgs = [];
     
-    // Add each player ID 4 times for the 4 player positions
+    // Add each player name 4 times for the 4 player positions
     for (int i = 0; i < 4; i++) {
-      whereArgs.addAll(playerIds);
+      whereArgs.addAll(playerNames);
     }
 
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseHelper.matchesTable,
       where: '''
-        ${DatabaseHelper.matchTeam1Player1IdColumn} IN (${List.filled(playerIds.length, '?').join(',')}) OR 
-        ${DatabaseHelper.matchTeam1Player2IdColumn} IN (${List.filled(playerIds.length, '?').join(',')}) OR 
-        ${DatabaseHelper.matchTeam2Player1IdColumn} IN (${List.filled(playerIds.length, '?').join(',')}) OR 
-        ${DatabaseHelper.matchTeam2Player2IdColumn} IN (${List.filled(playerIds.length, '?').join(',')})
+        ${DatabaseHelper.matchTeam1Player1NameColumn} IN (${List.filled(playerNames.length, '?').join(',')}) OR 
+        ${DatabaseHelper.matchTeam1Player2NameColumn} IN (${List.filled(playerNames.length, '?').join(',')}) OR 
+        ${DatabaseHelper.matchTeam2Player1NameColumn} IN (${List.filled(playerNames.length, '?').join(',')}) OR 
+        ${DatabaseHelper.matchTeam2Player2NameColumn} IN (${List.filled(playerNames.length, '?').join(',')})
       ''',
       whereArgs: whereArgs,
       orderBy: '${DatabaseHelper.matchDateColumn} DESC',

@@ -218,7 +218,7 @@ class PlayerListScreen extends ConsumerWidget {
         onTap: () {
           Navigator.of(context).push(
             MaterialPageRoute(
-              builder: (context) => PlayerDetailScreen(playerId: player.id),
+              builder: (context) => PlayerDetailScreen(playerName: player.name),
             ),
           );
         },
