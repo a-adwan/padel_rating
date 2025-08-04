@@ -33,10 +33,22 @@ class GlickoService {
     final Map<String, Player> updatedPlayers = {};
     final Map<String, Player> tempPlayers = {};
 
-    // Step 1: Apply inactivity RD
+    // Build a map of playerId -> last match date
+    final Map<String, DateTime> lastMatchDateMap = {};
+    for (var match in matches) {
+      for (var playerId in match.getAllPlayerIds()) {
+        final currentDate = lastMatchDateMap[playerId];
+        if (currentDate == null || match.date.isAfter(currentDate)) {
+          lastMatchDateMap[playerId] = match.date;
+        }
+      }
+    }
+
+    // Step 1: Apply inactivity RD using last match date
     for (var player in players) {
+      final lastMatchDate = lastMatchDateMap[player.id] ?? player.lastActivityDate;
       updatedPlayers[player.id] = player.copyWith(
-        ratingDeviation: _calculateRdForInactivity(player.ratingDeviation, player.lastActivityDate),
+        ratingDeviation: _calculateRdForInactivity(player.ratingDeviation, lastMatchDate),
       );
     }
 
@@ -111,7 +123,7 @@ class GlickoService {
         rating: newRating,
         ratingDeviation: newRatingDeviation,
         ratingChange: ratingChange,
-        lastActivityDate: DateTime.now(),
+        lastActivityDate: lastMatchDateMap[player.id],
       );
     }
 

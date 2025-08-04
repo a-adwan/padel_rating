@@ -11,11 +11,11 @@ class Player {
     required this.id,
     required this.name,
     this.side = 'Both',
-    this.rating = 1500.0, // Initial Glicko rating
-    this.ratingDeviation = 350.0, // Initial Glicko RD
-    required this.lastActivityDate,
+    this.rating = 1500.0,
+    this.ratingDeviation = 350.0,
+    DateTime? lastActivityDate, // Make nullable
     this.ratingChange = 0.0,
-  });
+  }) : lastActivityDate = lastActivityDate ?? DateTime.fromMicrosecondsSinceEpoch(0);
 
   // Convert Player to Map for database storage
   Map<String, dynamic> toMap() {

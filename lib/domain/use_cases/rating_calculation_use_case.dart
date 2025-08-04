@@ -48,8 +48,7 @@ class RatingCalculationUseCase {
     await calculateNewRatings(playersToUpdate, unprocessedMatches);
   }
 
-  Future<void> updateInactivePlayerRatings() async {
-    final cutoffDate = DateTime.now().subtract(const Duration(days: 7)); // 1 week cutoff
+  Future<void> updateInactivePlayerRatings(DateTime cutoffDate) async {
     final inactivePlayers = await _playerRepository.getPlayersWithInactivity(cutoffDate);
 
     for (final player in inactivePlayers) {

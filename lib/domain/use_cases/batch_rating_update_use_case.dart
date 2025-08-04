@@ -21,29 +21,20 @@ class BatchRatingUpdateUseCase {
   );
 
   Future<BatchUpdateResult> runWeeklyUpdate() async {
-    return await _runBatchUpdate(BatchUpdatePeriod.weekly);
+    return await _runBatchUpdate(DateTime.now().subtract(Duration(days: 7)), DateTime.now());
   }
 
   Future<BatchUpdateResult> runMonthlyUpdate() async {
-    return await _runBatchUpdate(BatchUpdatePeriod.monthly);
+    final startDate = DateTime(DateTime.now().year, DateTime.now().month - 1, 1);
+    final endDate = DateTime(DateTime.now().year, DateTime.now().month, 0);
+    return await _runBatchUpdate(startDate, endDate);
   }
 
-  Future<BatchUpdateResult> _runBatchUpdate(BatchUpdatePeriod period) async {
-    final now = DateTime.now();
-    final DateTime startDate;
-
-    switch (period) {
-      case BatchUpdatePeriod.weekly:
-        startDate = now.subtract(const Duration(days: 7));
-        break;
-      case BatchUpdatePeriod.monthly:
-        startDate = DateTime(now.year, now.month - 1, now.day);
-        break;
-    }
-
+  Future<BatchUpdateResult> _runBatchUpdate(DateTime startDate, DateTime endDate) async {
+    
     // Get matches from the specified period that haven't been processed
-    final matchesInPeriod = await _matchRepository.getMatchesByDateRange(startDate, now);
-    final unprocessedMatches = matchesInPeriod.where((match) => !match.isRatingProcessed).toList();
+    List<Match> matchesInPeriod = await _matchRepository.getMatchesByDateRange(startDate, endDate);
+    List<Match> unprocessedMatches = matchesInPeriod.where((match) => !match.isRatingProcessed).toList();
 
     if (unprocessedMatches.isEmpty) {
       return BatchUpdateResult(
@@ -67,7 +58,7 @@ class BatchRatingUpdateUseCase {
       await _ratingCalculationUseCase.calculateNewRatings(playersToUpdate, unprocessedMatches);
 
       // Update inactive player ratings
-      await _ratingCalculationUseCase.updateInactivePlayerRatings();
+      await _ratingCalculationUseCase.updateInactivePlayerRatings(startDate);
 
       return BatchUpdateResult(
         success: true,
@@ -87,11 +78,40 @@ class BatchRatingUpdateUseCase {
 
   Future<BatchUpdateResult> processAllUnprocessedMatches() async {
     try {
-      final unprocessedMatches = await _matchRepository.getUnprocessedMatches();
+      List<Match> unprocessedMatches = await _matchRepository.getUnprocessedMatches();
       final matchCount = unprocessedMatches.length;
       
-      await _ratingCalculationUseCase.processUnprocessedMatches();
-      await _ratingCalculationUseCase.updateInactivePlayerRatings();
+      if (unprocessedMatches.isEmpty) {
+        return BatchUpdateResult(
+          success: true,
+          message: 'No unprocessed matches found.',
+          matchesProcessed: 0,
+          playersUpdated: 0,
+        );
+      }
+
+      DateTime earliestDate = unprocessedMatches
+          .map((match) => match.date)
+          .reduce((a, b) => a.isBefore(b) ? a : b);
+
+      DateTime latestDate = unprocessedMatches
+          .map((match) => match.date)
+          .reduce((a, b) => a.isAfter(b) ? a : b);
+
+      DateTime currentStart = earliestDate;
+
+      while (currentStart.millisecondsSinceEpoch <= latestDate.millisecondsSinceEpoch) {
+        DateTime currentEnd = currentStart.add(Duration(days: 6));
+        if (currentEnd.isAfter(latestDate)) {
+          currentEnd = latestDate;
+        }
+
+        await _runBatchUpdate(currentStart, currentEnd);
+        currentStart = currentEnd.add(Duration(days: 1));
+
+      }
+      
+
       
       return BatchUpdateResult(
         success: true,

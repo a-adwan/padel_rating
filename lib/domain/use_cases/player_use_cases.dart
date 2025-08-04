@@ -13,7 +13,7 @@ class PlayerUseCases {
     final player = Player(
       id: _uuid.v4(),
       name: name,
-      lastActivityDate: DateTime.now(),
+      lastActivityDate: DateTime.fromMicrosecondsSinceEpoch(0),
     );
     await _playerRepository.addPlayer(player);
   }
