@@ -120,11 +120,13 @@ class BatchUpdateNotifier extends StateNotifier<BatchUpdateState> {
     await _batchUpdateUseCase.importPlayersFromCsv(file);
     // Optionally refresh data
     await _ref.read(playersProvider.notifier).loadPlayers();
+    await _ref.read(matchesProvider.notifier).loadMatches();
   }
 
   Future<void> importMatchesFromCsv(File file) async {
     await _batchUpdateUseCase.importMatchesFromCsv(file);
     // Optionally refresh data
+    await _ref.read(playersProvider.notifier).loadPlayers();
     await _ref.read(matchesProvider.notifier).loadMatches();
   }
 

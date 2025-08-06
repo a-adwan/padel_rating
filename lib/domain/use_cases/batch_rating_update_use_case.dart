@@ -1,5 +1,6 @@
 import 'package:csv/csv.dart';
 import 'dart:io';
+import 'package:uuid/uuid.dart';
 import 'package:path_provider/path_provider.dart';
 import '../../data/models/player.dart';
 import '../../data/models/match.dart';
@@ -190,10 +191,10 @@ class BatchRatingUpdateUseCase {
       rows.add([
         match.id,
         match.date.toIso8601String(),
-        match.team1Player1Id,
-        match.team1Player2Id,
-        match.team2Player1Id,
-        match.team2Player2Id,
+        (await _playerRepository.getPlayer(match.team1Player1Id))!.name,
+        (await _playerRepository.getPlayer(match.team1Player2Id))!.name,
+        (await _playerRepository.getPlayer(match.team2Player1Id))!.name,
+        (await _playerRepository.getPlayer(match.team2Player2Id))!.name,
         match.team1Score,
         match.team2Score,
         match.winnerTeam,
@@ -211,36 +212,50 @@ class BatchRatingUpdateUseCase {
     final rows = const CsvToListConverter().convert(csvString, eol: '\n');
     for (int i = 1; i < rows.length; i++) { // skip header
       final row = rows[i];
+      String id = (row[0] == null) ? '' : row[0].toString().trim();
+      
+      if (!Uuid.isValidUUID(fromString: id) || id.isEmpty || id.toLowerCase() == 'null') {
+        id = Uuid().v4(); // Generate a new player ID if the provided one is invalid or missing
+      }
+
       final player = Player(
-        id: row[0],
-        name: row[1],
-        rating: row[2],
-        ratingDeviation: row[3],
-        side: row[4],
-        lastActivityDate: DateTime.parse(row[5]),
+        id: id,
+        name: row[1]?.toString() ?? id,
+        rating: row[2] is num ? row[2].toDouble() : double.tryParse(row[2].toString()) ?? 1500,
+        ratingDeviation: row[3] is num ? row[3].toDouble() : double.tryParse(row[3].toString()) ?? 350,
+        side: row[4]?.toString() ?? 'Both',
+        lastActivityDate: DateTime.tryParse(row[5]?.toString() ?? '') ?? DateTime.fromMicrosecondsSinceEpoch(0),
       );
+
       await _playerRepository.addPlayer(player);
     }
   }
 
   Future<void> importMatchesFromCsv(File file) async {
     final csvString = await file.readAsString();
-    final rows = const CsvToListConverter().convert(csvString, eol: '\n');
+    final rows = const CsvToListConverter().convert(csvString, convertEmptyTo: '', eol: '\n');
     for (int i = 1; i < rows.length; i++) { // skip header
       final row = rows[i];
+      String id = (row[0] == null) ? '' : row[0].toString().trim();
+      
+      if (!Uuid.isValidUUID(fromString: id) || id.isEmpty || id.toLowerCase() == 'null') {
+        id = Uuid().v4(); // Always generate a new match ID if invalid, empty, or 'null'
+      }
+      
       final match = Match(
-        id: row[0],
+        id: id,
         date: DateTime.parse(row[1]),
-        team1Player1Id: row[2],
-        team1Player2Id: row[3],
-        team2Player1Id: row[4],
-        team2Player2Id: row[5],
+        team1Player1Id: (await _playerRepository.getOrAddPlayerByName(row[2]))!.id,
+        team1Player2Id: (await _playerRepository.getOrAddPlayerByName(row[3]))!.id,
+        team2Player1Id: (await _playerRepository.getOrAddPlayerByName(row[4]))!.id,
+        team2Player2Id: (await _playerRepository.getOrAddPlayerByName(row[5]))!.id,
         team1Score: row[6],
         team2Score: row[7],
         winnerTeam: row[8],
-        isRatingProcessed: row[9] == 1,
+        isRatingProcessed: false,
       );
-      await _matchRepository.addMatch(match);
+      
+      await _matchRepository.addMatch(match);      
     }
   }
 }

@@ -9,10 +9,13 @@ class PlayerUseCases {
 
   PlayerUseCases(this._playerRepository);
 
-  Future<void> addPlayer(String name) async {
+  Future<void> addPlayer(String name, double rating, double rd, String side) async {
     final player = Player(
       id: _uuid.v4(),
       name: name,
+      rating: rating,
+      ratingDeviation: rd,
+      side: side,
       lastActivityDate: DateTime.fromMicrosecondsSinceEpoch(0),
     );
     await _playerRepository.addPlayer(player);
@@ -28,6 +31,14 @@ class PlayerUseCases {
 
   Future<Player?> getPlayer(String id) async {
     return await _playerRepository.getPlayer(id);
+  }
+
+  Future<Player?> getPlayerByName(String name) async {
+    return await _playerRepository.getPlayerByName(name);
+  }
+
+  Future<Player?> getOrAddPlayerByName(String name) async {
+    return await _playerRepository.getOrAddPlayerByName(name);
   }
 
   Future<void> deletePlayer(String id) async {

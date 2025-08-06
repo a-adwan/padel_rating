@@ -1,5 +1,5 @@
 import 'package:sqflite/sqflite.dart';
-
+import 'package:uuid/uuid.dart';
 import '../models/player.dart';
 import '../database/database_helper.dart';
 
@@ -50,6 +50,41 @@ class PlayerRepository {
       return Player.fromMap(maps.first);
     }
     return null;
+  }
+
+  // Get a player by Name
+  Future<Player?> getPlayerByName(String name) async {
+    final db = await _databaseHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseHelper.playersTable,
+      where: '${DatabaseHelper.playerNameColumn} = ?',
+      whereArgs: [name],
+    );
+
+    if (maps.isNotEmpty) {
+      return Player.fromMap(maps.first);
+    }
+    return null;
+  }
+
+  // Get or add a player by Name
+  Future<Player?> getOrAddPlayerByName(String name) async {
+    if (await playerExistsByName(name)) {
+      return await getPlayerByName(name);
+    }
+
+    // If not found, create a new player
+    final newPlayer = Player(
+      id: Uuid().v4(),
+      name: name,
+      rating: 1500,
+      ratingDeviation: 350,
+      lastActivityDate: DateTime.fromMicrosecondsSinceEpoch(0),
+    );
+
+    await addPlayer(newPlayer);
+    
+    return newPlayer;
   }
 
   // Get all players
@@ -111,13 +146,26 @@ class PlayerRepository {
     });
   }
 
-  // Check if a player exists
+  // Check if a player exists by ID
   Future<bool> playerExists(String id) async {
     final db = await _databaseHelper.database;
     final List<Map<String, dynamic>> maps = await db.query(
       DatabaseHelper.playersTable,
       where: '${DatabaseHelper.playerIdColumn} = ?',
       whereArgs: [id],
+      limit: 1,
+    );
+
+    return maps.isNotEmpty;
+  }
+
+  // Check if a player exists by Name
+  Future<bool> playerExistsByName(String name) async {
+    final db = await _databaseHelper.database;
+    final List<Map<String, dynamic>> maps = await db.query(
+      DatabaseHelper.playersTable,
+      where: '${DatabaseHelper.playerNameColumn} = ?',
+      whereArgs: [name],
       limit: 1,
     );
 

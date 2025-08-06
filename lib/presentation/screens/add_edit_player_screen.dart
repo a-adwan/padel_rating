@@ -18,7 +18,7 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
   final _nameController = TextEditingController();
   final _ratingController = TextEditingController();
   final _rdController = TextEditingController();
-  String _selectedSide = 'Left'; // Default value
+  String _selectedSide = 'Both'; // Default value
 
   bool get isEditing => widget.player != null;
 
@@ -29,7 +29,7 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
       _nameController.text = widget.player!.name;
       _ratingController.text = widget.player!.rating.toString();
       _rdController.text = widget.player!.ratingDeviation.toString();
-      _selectedSide = widget.player!.side; // Assuming Player model has a 'side' field
+      _selectedSide = widget.player!.side;
     } else {
       _ratingController.text = '1500';
       _rdController.text = '350';
@@ -156,17 +156,18 @@ class _AddEditPlayerScreenState extends ConsumerState<AddEditPlayerScreen> {
       final name = _nameController.text.trim();
       final rating = double.parse(_ratingController.text);
       final rd = double.parse(_rdController.text);
+      String side = _selectedSide;
 
       if (isEditing) {
         final updatedPlayer = widget.player!.copyWith(
           name: name,
           rating: rating,
           ratingDeviation: rd,
-          side: _selectedSide, // Assuming Player model has a 'side' field
+          side: side,
         );
         await ref.read(playersProvider.notifier).editPlayer(updatedPlayer);
       } else {
-        await ref.read(playersProvider.notifier).addPlayer(name);
+        await ref.read(playersProvider.notifier).addPlayer(name, rating, rd, side);
       }
 
       if (mounted) {

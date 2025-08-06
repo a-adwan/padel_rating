@@ -65,7 +65,7 @@ class DatabaseHelper {
     await db.execute('''
       CREATE TABLE $playersTable (
         $playerIdColumn TEXT PRIMARY KEY,
-        $playerNameColumn TEXT NOT NULL,
+        $playerNameColumn TEXT NOT NULL UNIQUE,
         $playerSideColumn TEXT NOT NULL,
         $playerRatingColumn REAL NOT NULL DEFAULT 1500.0,
         $playerRatingDeviationColumn REAL NOT NULL DEFAULT 350.0,

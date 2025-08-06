@@ -35,9 +35,9 @@ class PlayersNotifier extends StateNotifier<AsyncValue<List<Player>>> {
     }
   }
 
-  Future<void> addPlayer(String name) async {
+  Future<void> addPlayer(String name, double rating, double rd, String side) async {
     try {
-      await _playerUseCases.addPlayer(name);
+      await _playerUseCases.addPlayer(name, rating, rd, side);
       await loadPlayers();
     } catch (error, stackTrace) {
       state = AsyncValue.error(error, stackTrace);
@@ -65,6 +65,14 @@ class PlayersNotifier extends StateNotifier<AsyncValue<List<Player>>> {
   Future<Player?> getPlayer(String id) async {
     try {
       return await _playerUseCases.getPlayer(id);
+    } catch (error) {
+      return null;
+    }
+  }
+
+  Future<Player?> getPlayerByName(String name) async {
+    try {
+      return await _playerUseCases.getPlayerByName(name);
     } catch (error) {
       return null;
     }
