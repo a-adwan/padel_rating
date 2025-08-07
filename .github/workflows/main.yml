@@ -1,0 +1,24 @@
+name: Flutter Windows CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+    - uses: actions/checkout@v4
+    - name: Install Flutter
+      uses: subosito/flutter-action@v2
+      with:
+        channel: stable
+    - name: Get dependencies
+      run: flutter pub get
+    - name: Enable Windows build
+      run: flutter config --enable-windows-desktop
+    - name: Build Windows executable
+      run: flutter build windows   
