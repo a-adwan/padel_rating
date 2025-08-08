@@ -2,7 +2,10 @@ name: Flutter Windows CI
 
 on:
   push:
-    tags: [origin/release]
+    branches:
+      - main
+    tags:
+      - release
 
 jobs:
   build-windows:
