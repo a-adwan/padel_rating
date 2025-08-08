@@ -28,12 +28,12 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: padel_rating_windows_build
-        path: ${{ env.FLUTTER_ROOT }}\build\windows\x64\runner\Release\
+        path: build\windows\x64\runner\Release\*
     - name: Upload windows binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: padel_rating_windows_build.zip
+        file: ${{ github.artifact_url }}
         # If you want to upload the entire build directory, uncomment the next line
         # file: ${{ env.FLUTTER_ROOT }}\build\windows\x64\
         overwrite: true
