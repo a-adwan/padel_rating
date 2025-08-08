@@ -24,11 +24,16 @@ jobs:
       run: flutter config --enable-windows-desktop
     - name: Build Windows executable
       run: flutter build windows --release
+    - name: upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: padel_rating_windows_build
+        path: ${{ env.FLUTTER_ROOT }}\build\windows\x64\runner\Release\
     - name: Upload windows binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: target/release/padel_rating.exe
+        file: padel_rating_windows_build.zip
         # If you want to upload the entire build directory, uncomment the next line
         # file: ${{ env.FLUTTER_ROOT }}\build\windows\x64\
         overwrite: true
