@@ -4,7 +4,7 @@ on:
   push:
     branches: [origin/main]
     tags:
-      - 'v*.*.*'
+      - 'release'
 
 jobs:
   build-windows:
@@ -23,13 +23,6 @@ jobs:
       run: flutter config --enable-windows-desktop
     - name: Build Windows executable
       run: flutter build windows --release
-    - name: Upload a Build Artifact
-      uses: actions/upload-artifact@v4.6.2
-      with:
-        name: padel_rating.zip
-        path: build\windows\x64\runner\Release\
-        if-no-files-found: warn
-        retention-days: 90
     - name: Upload windows binaries to release
       uses: svenstaro/upload-release-action@v2
       with:
