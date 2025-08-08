@@ -9,7 +9,7 @@ jobs:
   build-windows:
     runs-on: windows-latest
     permissions:
-      content: write
+      contents: write
     steps:
     - uses: actions/checkout@v4
     - name: Install Flutter
