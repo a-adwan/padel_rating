@@ -3,7 +3,8 @@ name: Flutter Windows CI
 on:
   push:
     branches: [origin/main]
-    tags: [release]
+    tags:
+      - 'v*.*.*'
 
 jobs:
   build-windows:
@@ -25,7 +26,7 @@ jobs:
     - name: Upload a Build Artifact
       uses: actions/upload-artifact@v4.6.2
       with:
-        name: padel_rating.exe
+        name: padel_rating.zip
         path: build\windows\x64\runner\Release\
         if-no-files-found: warn
         retention-days: 90
@@ -33,6 +34,6 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: ${{ env.FLUTTER_ROOT }}\build\windows\x64\runner\Release\padel_rating.exe.zip
+        file: ${{ env.FLUTTER_ROOT }}\build\windows\x64\runner\Release\padel_rating.zip
         overwrite: true
         body: "This is my release text"          
