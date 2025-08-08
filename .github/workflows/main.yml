@@ -33,6 +33,6 @@ jobs:
       uses: svenstaro/upload-release-action@v2
       with:
         repo_token: ${{ secrets.GITHUB_TOKEN }}
-        file: $FLUTTER_BUILD_DIR/windows/x64/runner/Release/padel_rating.exe
+        file: ${{ env.FLUTTER_BUILD_DIR }}/windows/x64/runner/Release/padel_rating.exe
         overwrite: true
         body: "This is my release text"          
