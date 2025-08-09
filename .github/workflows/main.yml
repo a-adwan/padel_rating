@@ -1,6 +1,6 @@
 on:
   push:
-    branches: [origin]
+    branches: [release]
     tags: ['v*']
 
 name: Flutter cross-build and release
@@ -28,7 +28,7 @@ jobs:
       - name: enable windows desktop
         run: flutter config --enable-windows-desktop
       - name: Build Windows application
-        run: flutter build windows --release --no-sound-null-safety
+        run: flutter build windows --release
       - name: Upload Windows build
         uses: actions/upload-artifact@v4
         with:
