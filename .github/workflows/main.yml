@@ -1,7 +1,5 @@
 on:
   push:
-    branches:
-      - main
     tags: 
       - 'v*'
 
@@ -15,7 +13,7 @@ permissions:
 
 jobs:
   build-windows:
-    #if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
+    if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
     name: Build Windows
     runs-on: windows-latest
     steps:
@@ -34,37 +32,37 @@ jobs:
       - name: Upload Windows build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PROGRAM_NAME }}
-          path: build\windows\runner\Release\
+          name: ${{ env.PROGRAM_NAME }}_windows_X86_64
+          path: build\windows\x64\runner\Release\
           retention-days: 7
-  # release-windows:
-  #   name: Release Windows
-  #   needs: [ build-windows ]
-  #   runs-on: windows-latest
-  #   steps:
-  #     - uses: actions/download-artifact@v5.0.0
-  #       name: Download artifacts
-  #       with:
-  #         name: ${{ env.PROGRAM_NAME }}.exe.zip
-  #     - uses: nowsprinting/check-version-format-action@v4
-  #       id: version
-  #       with:
-  #         prefix: 'v'
-  #     - name: Create release
-  #       id: new_release
-  #       uses: actions/create-release@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         tag_name: ${{ github.ref }}
-  #         release_name: Release ${{ github.ref }}
-  #         draft: false
-  #     - name: Upload 64-bit Windows build
-  #       uses: actions/upload-release-asset@v1
-  #       env:
-  #         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-  #       with:
-  #         asset_path: ./${{ env.PROGRAM_NAME }}_windows_X86_64.zip
-  #         asset_name: ${{ env.PROGRAM_NAME }}-x86_64-pc-windows-${{ steps.version.outputs.full }}.zip
-  #         asset_content_type: application/zip
-  #         upload_url: ${{ steps.new_release.outputs.upload_url }}
+          overwrite: true
+          
+  release-windows:
+    name: Release Windows
+    needs: [ build-windows ]
+    runs-on: windows-latest
+    steps:
+      - uses: actions/download-artifact@v5.0.0
+        name: Download artifacts
+      - uses: nowsprinting/check-version-format-action@v4
+        id: version
+        with:
+          prefix: 'v'
+      - name: Create release
+        id: new_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
+          draft: false
+      - name: Upload 64-bit Windows build
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          asset_path: ./${{ env.PROGRAM_NAME }}_windows_X86_64.zip
+          asset_name: ${{ env.PROGRAM_NAME }}-x86_64-${{ steps.version.outputs.full }}.zip
+          asset_content_type: application/zip
+          upload_url: ${{ steps.new_release.outputs.upload_url }}
