@@ -46,13 +46,14 @@ jobs:
     steps:
       - uses: actions/download-artifact@v5.0.0
         name: Download artifacts
+        id: download-artifacts
       - uses: nowsprinting/check-version-format-action@v4
         id: version
         with:
           prefix: 'v'
       - name: Create release
         id: new_release
-        uses: actions/create-release@v1
+        uses: comnoco/create-release@v2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
@@ -64,7 +65,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         with:
-          asset_path: ./${{ env.PROGRAM_NAME }}_windows_X86_64.zip
+          asset_path: ${{ steps.download-artifacts.outputs.download-path }}\${{ env.PROGRAM_NAME }}_windows_X86_64.zip
           asset_name: ${{ env.PROGRAM_NAME }}-x86_64-${{ steps.version.outputs.full }}.zip
           asset_content_type: application/zip
           upload_url: ${{ steps.new_release.outputs.upload_url }}
