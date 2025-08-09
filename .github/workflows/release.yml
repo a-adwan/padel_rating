@@ -31,11 +31,12 @@ jobs:
         run: flutter config --enable-windows-desktop
       - name: Build Windows application
         run: flutter build windows --release
-      - name: Upload Windows build
+      - name: Upload Windows build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ${{ env.PROGRAM_NAME }}_windows_X86_64_release
-          path: build/windows/runner/Release/
+          name: ${{ env.PROGRAM_NAME }}.exe
+          path: build\windows\runner\Release\
+          retention-days: 7
   release-windows:
     name: Release Windows
     needs: [ build-windows ]
@@ -44,7 +45,7 @@ jobs:
       - uses: actions/download-artifact@v5.0.0
         name: Download artifacts
         with:
-          name: ${{ env.PROGRAM_NAME }}_windows_X86_64_release.zip
+          name: ${{ env.PROGRAM_NAME }}.exe.zip
       - uses: nowsprinting/check-version-format-action@v4
         id: version
         with:
