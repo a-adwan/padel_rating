@@ -47,6 +47,9 @@ jobs:
       - uses: actions/download-artifact@v5.0.0
         name: Download artifacts
         id: download-artifacts
+        with:
+          name: ${{ env.PROGRAM_NAME }}_windows_X86_64.zip
+          path: .\
       - uses: nowsprinting/check-version-format-action@v4
         id: version
         with:
