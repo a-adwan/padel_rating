@@ -1,7 +1,9 @@
 on:
   push:
-    branches: [origin/release]
-    tags: ['v*']
+    branches:
+      - release
+    tags: 
+      - 'v*'
 
 name: Flutter cross-build and release
 
