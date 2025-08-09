@@ -10,6 +10,8 @@ env:
 
 jobs:
   build-windows:
+    permissions: 
+      contents: write
     if: (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/v'))
     name: Build Windows
     runs-on: windows-latest
@@ -32,6 +34,8 @@ jobs:
           name: ${{ env.PROGRAM_NAME }}_windows_X86_64_release
           path: build/windows/runner/Release/
   release-windows:
+    permissions: 
+      contents: write
     name: Release Windows
     needs: [ build-windows ]
     runs-on: windows-latest
