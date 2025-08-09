@@ -3,7 +3,7 @@ on:
     branches:
       - main
     tags:
-      - 'v*'
+      - '*'
 
 name: Flutter cross-build and release
 
